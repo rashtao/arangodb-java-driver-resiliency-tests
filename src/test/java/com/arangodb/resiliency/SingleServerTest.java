@@ -20,7 +20,7 @@ public abstract class SingleServerTest {
     protected static final MemoryAppender memoryAppender = new MemoryAppender(Level.WARN);
     private static Proxy proxy;
     private static final String UPSTREAM_HOST = "172.28.3.1";
-    private static final String PROXY_NAME = "arango";
+    private static final String PROXY_NAME = "singleServer";
 
     @BeforeAll
     static void beforeAll() throws IOException {
