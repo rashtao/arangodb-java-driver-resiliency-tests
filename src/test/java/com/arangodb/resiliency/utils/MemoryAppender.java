@@ -1,4 +1,4 @@
-package utils;
+package com.arangodb.resiliency.utils;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
