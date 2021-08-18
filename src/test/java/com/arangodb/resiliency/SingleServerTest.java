@@ -46,13 +46,13 @@ public abstract class SingleServerTest {
         return proxy;
     }
 
-    protected ArangoDB.Builder dbBuilder() {
+    protected static ArangoDB.Builder dbBuilder() {
         return new ArangoDB.Builder()
                 .host(HOST, PORT)
                 .password(PASSWORD);
     }
 
-    protected ArangoDBAsync.Builder dbBuilderAsync() {
+    protected static ArangoDBAsync.Builder dbBuilderAsync() {
         return new ArangoDBAsync.Builder()
                 .host(HOST, PORT)
                 .password(PASSWORD);
