@@ -31,16 +31,26 @@ class VstReconnectionTest extends SingleServerTest {
     }
 
     /**
-     * if the VST connection is closed from the other side:
-     * - on the next request the connection it should be automatically reopened
+     * if the proxy is disabled:
+     * - the subsequent requests should throw ArangoDBException("Cannot contact any host")
+     *
+     * once the proxy is re-enabled:
+     * - the subsequent requests should be successful
      */
     @Test
-    void closeAndReopenConnection() throws IOException {
+    void closeAndReopenConnection() throws IOException, InterruptedException {
         arangoDB.getVersion();
 
         // closes the driver connection
         getProxy().disable();
+        Thread.sleep(100);
+
+        Throwable thrown = catchThrowable(() -> arangoDB.getVersion());
+        assertThat(thrown).isInstanceOf(ArangoDBException.class);
+        assertThat(thrown.getMessage()).contains("Cannot contact any host");
+
         getProxy().enable();
+        Thread.sleep(100);
 
         arangoDB.getVersion();
     }
