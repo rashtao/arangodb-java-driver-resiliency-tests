@@ -13,6 +13,8 @@ jobs:
     timeout-minutes: 20
     runs-on: ubuntu-latest
 
+    env:
+      TOXIPROXY_VERSION: v2.1.4
     strategy:
       fail-fast: false
       matrix:
@@ -27,7 +29,7 @@ jobs:
           java-version: 11
       - name: Start Database
         run: ./docker/start_db_single.sh ${{ matrix.docker-img }}
-        env:
-          ARANGO_LICENSE_KEY: ${{ secrets.ARANGO_LICENSE_KEY }}
+      - name: Start Toxiproxy
+        run: ./bin/startProxy.sh
       - name: Test
         run: mvn --no-transfer-progress test
