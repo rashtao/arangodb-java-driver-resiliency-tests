@@ -40,20 +40,20 @@ class ReconnectionTest extends SingleServerTest {
         arangoDB.getVersion();
 
         // close the driver connection
-        getProxy().disable();
+        getEndpoint().getProxy().disable();
         Thread.sleep(100);
 
         Throwable thrown = catchThrowable(arangoDB::getVersion);
         assertThat(thrown).isInstanceOf(ArangoDBException.class);
         assertThat(thrown.getMessage()).contains("Cannot contact any host");
 
-        long warnsCount = memoryAppender.getLoggedEvents().stream()
+        long warnsCount = logs.getLoggedEvents().stream()
                 .filter(e -> e.getLevel().equals(Level.WARN))
                 .filter(e -> e.getMessage().contains("Could not connect to host[addr=127.0.0.1,port=8529]"))
                 .count();
         assertThat(warnsCount).isGreaterThanOrEqualTo(3);
 
-        getProxy().enable();
+        getEndpoint().getProxy().enable();
         Thread.sleep(100);
 
         arangoDB.getVersion();

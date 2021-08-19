@@ -17,46 +17,43 @@ import java.io.IOException;
 public abstract class SingleServerTest {
 
     protected static final String HOST = "127.0.0.1";
-    protected static final int PORT = 8529;
     protected static final String PASSWORD = "test";
-    protected static final MemoryAppender memoryAppender = new MemoryAppender(Level.WARN);
-    private static Proxy proxy;
-    private static final String UPSTREAM_HOST = "172.28.3.1";
-    private static final String PROXY_NAME = "singleServer";
+    protected static final MemoryAppender logs = new MemoryAppender(Level.WARN);
+    private static final Endpoint endpoint = new Endpoint("singleServer", HOST, 8529, "172.28.3.1:8529");
 
     @BeforeAll
     static void beforeAll() throws IOException {
         ToxiproxyClient client = new ToxiproxyClient(HOST, 8474);
-        Proxy p = client.getProxyOrNull(PROXY_NAME);
+        Proxy p = client.getProxyOrNull(endpoint.getName());
         if (p != null) {
             p.delete();
         }
-        proxy = client.createProxy(PROXY_NAME, HOST + ":" + PORT, UPSTREAM_HOST + ":" + PORT);
+        endpoint.setProxy(client.createProxy(endpoint.getName(), HOST + ":" + endpoint.getPort(), endpoint.getUpstream()));
     }
 
     @AfterAll
     static void afterAll() throws IOException {
-        proxy.delete();
+        endpoint.getProxy().delete();
     }
 
     @BeforeEach
     void beforeEach() throws IOException {
-        getProxy().enable();
+        endpoint.getProxy().enable();
     }
 
-    protected static Proxy getProxy() {
-        return proxy;
+    protected static Endpoint getEndpoint() {
+        return endpoint;
     }
 
     protected static ArangoDB.Builder dbBuilder() {
         return new ArangoDB.Builder()
-                .host(HOST, PORT)
+                .host(endpoint.getHost(), endpoint.getPort())
                 .password(PASSWORD);
     }
 
     protected static ArangoDBAsync.Builder dbBuilderAsync() {
         return new ArangoDBAsync.Builder()
-                .host(HOST, PORT)
+                .host(endpoint.getHost(), endpoint.getPort())
                 .password(PASSWORD);
     }
 
