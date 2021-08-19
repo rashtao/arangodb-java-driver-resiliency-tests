@@ -9,9 +9,11 @@ import org.junit.jupiter.api.AfterAll;
 import com.arangodb.resiliency.utils.MemoryAppender;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 
 import java.io.IOException;
 
+@Tag("singleServer")
 public abstract class SingleServerTest {
 
     protected static final String HOST = "127.0.0.1";

@@ -27,8 +27,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Start Database
+      - name: Start Single Server
         run: ./docker/start_db_single.sh ${{ matrix.docker-img }}
+      - name: Start Cluster
+        run: ./docker/start_db_cluster.sh ${{ matrix.docker-img }}
+      - name: Start Active Failover
+        run: ./docker/start_db_active-failover.sh ${{ matrix.docker-img }}
       - name: Start Toxiproxy
         run: ./bin/startProxy.sh
       - name: Test

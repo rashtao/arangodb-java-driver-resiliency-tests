@@ -25,4 +25,6 @@ hs_err_pid*
 .idea
 arangodb-java-driver-resiliency-tests.iml
 target
-bin/toxiproxy-server
+/docker/jwtHeader
+/docker/jwtSecret
+/bin/toxiproxy-server-linux-amd64
