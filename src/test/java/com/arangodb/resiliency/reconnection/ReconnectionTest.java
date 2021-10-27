@@ -43,9 +43,11 @@ class ReconnectionTest extends SingleServerTest {
         getEndpoint().getProxy().disable();
         Thread.sleep(100);
 
-        Throwable thrown = catchThrowable(arangoDB::getVersion);
-        assertThat(thrown).isInstanceOf(ArangoDBException.class);
-        assertThat(thrown.getMessage()).contains("Cannot contact any host");
+        for (int i = 0; i < 10; i++) {
+            Throwable thrown = catchThrowable(arangoDB::getVersion);
+            assertThat(thrown).isInstanceOf(ArangoDBException.class);
+            assertThat(thrown.getMessage()).contains("Cannot contact any host");
+        }
 
         long warnsCount = logs.getLoggedEvents().stream()
                 .filter(e -> e.getLevel().equals(Level.WARN))
