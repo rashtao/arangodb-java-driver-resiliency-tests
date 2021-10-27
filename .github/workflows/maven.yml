@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - v5
   pull_request:
     branches:
       - main
+      - v5
     types: [opened, synchronize, reopened]
 
 jobs:
