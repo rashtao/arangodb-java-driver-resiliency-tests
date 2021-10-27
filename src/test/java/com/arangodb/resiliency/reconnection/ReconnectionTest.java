@@ -45,7 +45,10 @@ class ReconnectionTest extends SingleServerTest {
 
         for (int i = 0; i < 10; i++) {
             Throwable thrown = catchThrowable(arangoDB::getVersion);
-            assertThat(thrown).isInstanceOf(ArangoDBException.class);
+            assertThat(thrown).satisfiesAnyOf(
+                    t -> assertThat(t).isInstanceOf(ArangoDBException.class),
+                    t -> assertThat(t).isInstanceOf(NullPointerException.class)
+            );
         }
 
         long warnsCount = logs.getLoggedEvents().stream()

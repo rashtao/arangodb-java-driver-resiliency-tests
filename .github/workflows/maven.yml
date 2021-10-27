@@ -48,10 +48,6 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Start Single Server
         run: ./docker/start_db_single.sh ${{ matrix.docker-img }}
-      - name: Start Cluster
-        run: ./docker/start_db_cluster.sh ${{ matrix.docker-img }}
-      - name: Start Active Failover
-        run: ./docker/start_db_active-failover.sh ${{ matrix.docker-img }}
       - name: Start Toxiproxy
         run: ./bin/startProxy.sh
       - name: Build and analyze
