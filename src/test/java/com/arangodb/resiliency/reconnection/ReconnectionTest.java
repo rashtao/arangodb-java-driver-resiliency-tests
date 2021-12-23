@@ -3,12 +3,14 @@ package com.arangodb.resiliency.reconnection;
 import ch.qos.logback.classic.Level;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
+import com.arangodb.ArangoDBMultipleException;
 import com.arangodb.Protocol;
 import com.arangodb.resiliency.SingleServerTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +49,11 @@ class ReconnectionTest extends SingleServerTest {
             Throwable thrown = catchThrowable(arangoDB::getVersion);
             assertThat(thrown).isInstanceOf(ArangoDBException.class);
             assertThat(thrown.getMessage()).contains("Cannot contact any host");
+            assertThat(thrown.getCause()).isNotNull();
+            assertThat(thrown.getCause()).isInstanceOf(ArangoDBMultipleException.class);
+            ((ArangoDBMultipleException) thrown.getCause()).getExceptions().forEach(e -> {
+                assertThat(e).isInstanceOf(ConnectException.class);
+            });
         }
 
         long warnsCount = logs.getLoggedEvents().stream()
