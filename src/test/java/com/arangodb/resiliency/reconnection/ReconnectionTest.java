@@ -6,11 +6,14 @@ import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDBMultipleException;
 import com.arangodb.Protocol;
 import com.arangodb.resiliency.SingleServerTest;
+import eu.rekawek.toxiproxy.model.ToxicDirection;
+import eu.rekawek.toxiproxy.model.toxic.Latency;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,8 +26,8 @@ class ReconnectionTest extends SingleServerTest {
 
     static Stream<ArangoDB> arangoProvider() {
         return Stream.of(
-                dbBuilder().useProtocol(Protocol.VST).build(),
-                dbBuilder().useProtocol(Protocol.HTTP_VPACK).build()
+                dbBuilder().timeout(1_000).useProtocol(Protocol.VST).build(),
+                dbBuilder().timeout(1_000).useProtocol(Protocol.HTTP_VPACK).build()
         );
     }
 
@@ -38,7 +41,7 @@ class ReconnectionTest extends SingleServerTest {
      */
     @ParameterizedTest
     @MethodSource("arangoProvider")
-    void closeAndReconnect(ArangoDB arangoDB) throws IOException, InterruptedException {
+    void unreachableHost(ArangoDB arangoDB) throws IOException, InterruptedException {
         arangoDB.getVersion();
 
         // close the driver connection
@@ -63,6 +66,37 @@ class ReconnectionTest extends SingleServerTest {
         assertThat(warnsCount).isGreaterThanOrEqualTo(3);
 
         getEndpoint().getProxy().enable();
+        Thread.sleep(100);
+
+        arangoDB.getVersion();
+        arangoDB.shutdown();
+    }
+
+    /**
+     * on reconnection failure:
+     * - 3x logs WARN Could not connect to host[addr=127.0.0.1,port=8529]
+     * - ArangoDBException("Cannot contact any host")
+     * <p>
+     * once the proxy is re-enabled:
+     * - the subsequent requests should be successful
+     */
+    @ParameterizedTest
+    @MethodSource("arangoProvider")
+    void connectionTimeout(ArangoDB arangoDB) throws IOException, InterruptedException {
+        arangoDB.getVersion();
+
+        // slow down the driver connection
+        Latency toxic = getEndpoint().getProxy().toxics().latency("latency", ToxicDirection.DOWNSTREAM, 10_000);
+        Thread.sleep(100);
+
+        Throwable thrown = catchThrowable(arangoDB::getVersion);
+        thrown.printStackTrace();
+        assertThat(thrown)
+                .isInstanceOf(ArangoDBException.class)
+                .extracting(Throwable::getCause)
+                .isInstanceOf(TimeoutException.class);
+
+        toxic.remove();
         Thread.sleep(100);
 
         arangoDB.getVersion();

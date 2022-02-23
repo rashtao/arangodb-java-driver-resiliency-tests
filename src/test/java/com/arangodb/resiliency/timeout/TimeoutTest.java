@@ -2,6 +2,7 @@ package com.arangodb.resiliency.timeout;
 
 import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoDB;
+import com.arangodb.ArangoDBException;
 import com.arangodb.Protocol;
 import com.arangodb.resiliency.SingleServerTest;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +53,10 @@ class TimeoutTest extends SingleServerTest {
                     Map.class);
         } catch (Exception e) {
             e.printStackTrace();
+            assertThat(e)
+                    .isInstanceOf(ArangoDBException.class)
+                    .extracting(Throwable::getCause)
+                    .isInstanceOf(TimeoutException.class);
         }
 
         arangoDB.getVersion();
