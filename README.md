@@ -4,9 +4,9 @@
 
 Start ArangoDB docker containers:
 ```shell
-./docker/start_db_single.sh docker.io/arangodb/arangodb:3.8.4
-./docker/start_db_cluster.sh docker.io/arangodb/arangodb:3.8.4
-./docker/start_db_active-failover.sh docker.io/arangodb/arangodb:3.8.4
+./docker/start_db_single.sh docker.io/arangodb/arangodb:3.10.0
+./docker/start_db_cluster.sh docker.io/arangodb/arangodb:3.10.0
+./docker/start_db_active-failover.sh docker.io/arangodb/arangodb:3.10.0
 ```
 
 Start [toxiproxy-server](https://github.com/Shopify/toxiproxy) at `127.0.0.1:8474`.
