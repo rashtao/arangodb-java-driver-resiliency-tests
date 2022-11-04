@@ -1,4 +1,8 @@
-# arangodb-java-driver-resiliency-tests
+# [EOL] arangodb-java-driver-resiliency-tests
+
+This project has been merged into the Java driver, see https://github.com/arangodb/arangodb-java-driver/pull/467
+
+---
 
 ## run
 
